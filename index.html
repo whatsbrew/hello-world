@@ -1,0 +1,164 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      /* Styles for the calendar table */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      td, th {
+        text-align: center;
+        padding: 8px;
+      }
+      th {
+        background-color: #dddddd;
+      }
+      td:hover {
+        cursor: pointer;
+      }
+      /* Style for the selected date */
+      .selected {
+        background-color: #eeeeee;
+      }
+      div {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      button {
+        border: none;
+        
+        height: 40px;
+        width: 100px;
+        font-size: 1em;
+        background-color: transparent;
+      }
+
+
+      @media (hover:hover) {
+        button:hover {
+          background-color: #dddddd;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1 id='displayMonth'></h1>
+    <div>
+      <button id="prevMonth"><b><<</b></button>
+      <button id="curMonth"><b>Today</b></button>
+      <button id="nextMonth"><b>>></b></button>
+    </div>
+    <table id="calendar"></table>
+
+        <!-- Render the calendar cells -->
+        <script>
+          const monthName = ["January","Feburary","March","April","May","June","July","August","September","October","November","December"];
+          let today = new Date();                   
+          let month = today.getMonth();
+          let year = today.getFullYear();
+
+          let selectedDate = today.getDate(); // Keep track of the selected date        
+
+          const displayMonth = document.querySelector("#displayMonth");
+          const displayCalendar = document.querySelector("#calendar");
+
+          renderCalendar(selectedDate,month,year);
+
+          
+          
+          function renderCalendar(selectedDate, month,year) {
+            
+
+            // Calculate the number of days in the month
+            const numDaysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Calculate the day of the week for the first day of the month
+            const firstDayOfMonth = new Date(year, month, 1);
+            const firstDayOfWeek = firstDayOfMonth.getDay();
+            
+            let calc = "      <tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr><tr>";
+
+
+            // Render the empty cells for the first week
+            for (let i = 0; i < firstDayOfWeek; i++) {
+              calc += '<td></td>';
+            }
+            
+            // Render the cells for the rest of the month
+            for (let i = 1; i <= numDaysInMonth; i++) {
+              // Use a function to add the "selected" class to the selected date
+              calc += `<td class="${selectedDate === i ? 'selected' : ''}">${i}</td>`;
+              if ((firstDayOfWeek + i - 1) % 7 == 6) {
+                calc += '</tr><tr>';
+              }
+            }
+
+            for (let i = 0; i < 7 - ((firstDayOfWeek+numDaysInMonth -1) % 7) - 1; i++) {
+              calc +='<td></td>';
+            }
+            
+            displayCalendar.innerHTML = calc;
+            updateDisplayMonth(month,year); 
+            addListeners();
+          }
+
+          function updateDisplayMonth(month,year) {
+            displayMonth.innerHTML = monthName[month] + " " + year;
+          }
+          
+          
+          // Add an event listener to the table cells to update the selected date when clicked
+          function addListeners() {
+            const tableCells = document.querySelectorAll("td");
+            tableCells.forEach(cell => {
+              cell.addEventListener("click", event => {
+                // if selected cell is not empty
+                if (event.target.textContent != '') {
+                  // Remove the "selected" class from all cells
+                  tableCells.forEach(cell => cell.classList.remove("selected"));               
+                  // Add the "selected" class to the clicked cell
+                  event.target.classList.add("selected");
+                  // Update the selected date
+                  selectedDate = event.target.textContent;
+                }
+                console.log (selectedDate);
+              });
+            });
+          }
+          
+          const prevMonth = document.querySelector("#prevMonth");
+          prevMonth.addEventListener("click", ()=> {
+            year = month===0 ? year-1 : year;
+            month= month===0 ? 11: month-1;
+            console.log (month + " " + year)            ;
+            renderCalendar(selectedDate,month, year);
+          });
+
+          const nextMonth = document.querySelector("#nextMonth");
+          nextMonth.addEventListener("click", ()=> {
+            year = month===11 ? year+1 : year;
+            month= month===11 ? 0: month+1;            
+            console.log (month + " " + year)            ;
+            renderCalendar(selectedDate,month, year);
+          });
+
+          const curMonth = document.querySelector("#curMonth");
+          curMonth.addEventListener("click", ()=> {
+            month = today.getMonth();
+            year = today.getFullYear();
+            selectedDate = today.getDate();
+            console.log (month + " " + year)            ;
+            renderCalendar(selectedDate,month, year);
+          });
+
+</script>
+
+</body>
+</html>
